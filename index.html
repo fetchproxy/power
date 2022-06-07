@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="text/javascript" src="./vue.js"></script>
+    <title>现货模型量价分析</title>
+    <style>
+        html,
+        body {
+            margin: 0px;
+            padding: 0px;
+            width: 100%;
+            height: 100%;
+            /* font-family: 'Consolas', Courier, monospace; */
+        }
+
+        page {
+            width: 660px;
+            height: 100%;
+            display: grid;
+            grid-template-rows: 65px 150px 50px 1fr;
+        }
+
+        table {
+            margin: 0px;
+        }
+
+        svg {
+            height: 95%;
+            width: 96%;
+            padding: 10px;
+            margin: 0px;
+        }
+
+        td>input {
+            font-size: 20px;
+            font-weight: bold;
+            text-align: right;
+            border-top-width: 0px;
+            border-left-width: 0px;
+            border-right: 0px;
+            border-bottom-width: 1px;
+            border-bottom-color: green;
+            outline: none;
+        }
+
+        .data {
+            height: 100%;
+            width: calc(100%-25px);
+            display: grid;
+            grid-template-columns: 300px 170px 1fr;
+            padding: 0 10px 0 10px
+        }
+
+        .title {
+            width: 100%;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .table-title {
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .table-jiner {
+            padding-right: 5px;
+            text-align: right;
+        }
+
+        .shuoming {
+            margin: 8px;
+        }
+
+        .mianji {
+            width: 72px;
+            text-align: center;
+            font-weight: bold;
+            border: 1px solid black;
+        }
+    </style>
+</head>
+
+<body>
+    <page>
+        <div style="display:grid;grid-template-columns:70% 1fr;">
+            <p class="title">现 货 交 易 量 价 分 析</p>
+            <p class="title" style="font-weight:normal;"><label for="print"><input id="print" type="checkbox"
+                        v-model="debug" />控制台输出选项</label></p>
+        </div>
+        <div class="data">
+            <table>
+                <tr>
+                    <td class="table-title">指标</td>
+                    <td class="table-title">电量 MWh</td>
+                    <td class="table-title">电价 元/MWh</td>
+                </tr>
+                <tr>
+                    <td class="table-title" style="color:rgb(0, 0, 255)">合约</td>
+                    <td style="text-align:center;">
+                        <input v-model="QH" type="number" max="10000" min="0" step="10" style="color:rgb(0, 0, 255)" />
+                    </td>
+                    <td style="text-align:center;">
+                        <input v-model="PH" type="number" max="2000" min="0" step="1" style="color:rgb(0, 0, 255)" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="table-title" style="color:rgb(255, 178, 0)">日前</td>
+                    <td style="text-align:center;">
+                        <input v-model="QR" type="number" max="10000" min="0" step="10"
+                            style="color:rgb(255, 178, 0)" />
+                    </td>
+                    <td style="text-align:center;">
+                        <input v-model="PR" type="number" max="2000" min="0" step="1" style="color:rgb(255, 178, 0)" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="table-title" style="color:rgb(255, 0, 0)">实时</td>
+                    <td style="text-align:center;">
+                        <input v-model="QS" type="number" max="10000" min="0" step="10" style="color:rgb(255, 0, 0)" />
+                    </td>
+                    <td style="text-align:center;">
+                        <input v-model="PS" type="number" max="2000" min="0" step="1" style="color:rgb(255, 0, 0)" />
+                    </td>
+                </tr>
+            </table>
+            <table>
+                <tr>
+                    <td class="table-title">指标</td>
+                    <td class="table-title">金额 元</td>
+                </tr>
+                <tr>
+                    <td class="table-title" style="color:green">收入</td>
+                    <td class="table-jiner" style="color:green"><span>{{shouRu}}</span></td>
+                </tr>
+                <tr>
+                    <td class="table-title">支出</td>
+                    <td class="table-jiner"><span>{{zhiChu}}</span></td>
+                </tr>
+                <tr>
+                    <td class="table-title">收益</td>
+                    <td class="table-jiner"><span v-if="sunYi>=0"
+                            style="color:blue;font-weight: bold;">{{sunYi}}</span><span v-else
+                            style="color:red;font-weight: bold;">{{sunYi}}</span></td>
+                </tr>
+                <tr>
+                    <td class="table-title"> 套利</td>
+                    <td class="table-jiner"><span v-if="taoLi>=0"
+                            style="color:blue;font-weight: bold;">{{taoLi}}</span><span v-else
+                            style="color:red;font-weight: bold;">{{taoLi}}</span></td>
+                </tr>
+            </table>
+            <table style="border-collapse: collapse;padding-left: 5px;">
+                <tr>
+                    <td colspan="3" align="center" style="font-weight: bold;">成 本 支 出 图 示</td>
+                </tr>
+                <tr>
+                    <td class="mianji">
+                        {{map[0][0]}}
+                    </td>
+                    <td class="mianji">
+                        {{map[0][1]}}
+                    </td>
+                    <td class="mianji">
+                        {{map[0][2]}}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="mianji">
+                        {{map[1][0]}}
+                    </td>
+                    <td class="mianji">
+                        {{map[1][1]}}
+                    </td>
+                    <td class="mianji">
+                        {{map[1][2]}}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="mianji">
+                        {{map[2][0]}}
+                    </td>
+                    <td class="mianji">
+                        {{map[2][1]}}
+                    </td>
+                    <td class="mianji">
+                        {{map[2][2]}}
+                    </td>
+                </tr>
+            </table>
+
+        </div>
+        <div style="padding: 10px;">
+            <p class="shuoming">支出 = Q合约×P合约 + Q日前×P日前 + Q实时×P实时 - Q合约×P日前 - Q日前×P实时</p>
+        </div>
+        <div id="rongqi">
+            <svg :viewBox="viewBox" preserveAspectRatio="xMinYMin meet">
+                <g :transform="transform">
+                    <!-- 坐标系 -->
+                    <line x1="0" y1="0" :x2="xMax*1.05" y2="0" style="stroke:rgb(0, 0, 0);stroke-width:2" />
+                    <line x1="0" y1="0" x2="0" :y2="yMax*1.1" style="stroke:rgb(0, 0, 0);stroke-width:4" />
+
+                    <!-- 合约 -->
+                    <line x1="0" :y1="PH" :x2="xMax" :y2="PH" style="stroke:rgb(0, 0, 255);stroke-width:3" />
+                    <line :x1="QH" y1="0" :x2="QH" :y2="yMax" style="stroke:rgb(0, 0, 255);stroke-width:3" />
+
+                    <!-- 日前 -->
+                    <line x1="0" :y1="PR" :x2="xMax" :y2="PR" style="stroke:rgb(255, 128, 0);stroke-width:3" />
+                    <line :x1="QR" y1="0" :x2="QR" :y2="yMax" style="stroke:rgb(255, 128, 0);stroke-width:3" />
+
+                    <!-- 实时 -->
+                    <line x1="0" :y1="PS" :x2="xMax" :y2="PS" style="stroke:rgb(255, 0, 0);stroke-width:3" />
+                    <line x1="0" :y1="PH+JC" :x2="QH" :y2="PH+JC" stroke-dasharray="15, 2"
+                        style="stroke:green;stroke-width:2" />
+                    <line :x1="QS" y1="0" :x2="QS" :y2="yMax" style="stroke:rgb(255, 0, 0);stroke-width:3" />
+
+                </g>
+                <g visibility="hidden" other="visible">
+                    <text x="3" :y="yMax-yMin">0</text>
+                    <!-- X轴标签 -->
+                    <text :x="QH-10" :y="yMax-yMin" stroke="blue">Q合</text>
+                    <text :x="QR-10" :y="yMax-yMin" stroke="rgb(255,128,0)">Q日</text>
+                    <text :x="QS-10" :y="yMax-yMin" stroke="red">Q实</text>
+                    <!-- Y轴标签 -->
+                    <text x="3" :y="yMax-PH+40" stroke="blue">P合</text>
+                    <text x="3" :y="yMax-PR+40" stroke="rgb(255,128,0)">P日</text>
+                    <text x="3" :y="yMax-PS+40" stroke="red">P实</text>
+                </g>
+            </svg>
+        </div>
+    </page>
+    <script>
+        window.onload = function () {
+            const obj = {
+                data() {
+                    return {
+                        QH: 400,
+                        PH: 420,
+                        QR: 400,
+                        PR: 440,
+                        QS: 400,
+                        PS: 440,
+                        xMin: -50,
+                        yMin: -50,
+                        JC: 5,
+                        debug: false
+                    }
+                },
+                computed: {
+                    shouRu() {
+                        return this.Round(this.QS * (this.PH + this.JC), 2).toFixed(2);
+                    },
+                    zhiChu() {
+                        return this.Round(this.QH * this.PH + (this.QR - this.QH) * this.PR + (this.QS - this.QR) * this.PS, 2).toFixed(2);
+                    },
+                    sunYi() {
+                        return this.Round(this.shouRu - this.zhiChu, 2).toFixed(2);
+                    },
+                    taoLi() {
+                        let SR = (this.QS - this.QR) * (this.PR - this.PS);
+                        let RH = (this.QS - this.QH) * (this.PH - this.PR);
+                        let jc = this.JC * (this.QS - this.QH);
+                        this.log("-- 套利 计算 --");
+                        this.log("实时 与 日前 (Q实 - Q日)*(P日 - P实) ", SR.toFixed(2));
+                        this.log("日前 与 合约 (Q实 - Q合)*(P合 - P日) ", RH.toFixed(2));
+                        this.log("价差 价差*(Q实 - Q合) ", jc.toFixed(2));
+                        this.log("-- end --");
+                        return this.Round(SR + RH + jc, 2).toFixed(2);
+                    },
+                    xMax() {
+                        return Math.max(this.QH, this.QR, this.QS);
+                    },
+                    yMax() {
+                        return Math.max(this.PH, this.PR, this.PS);
+                    },
+                    viewBox() {
+                        return this.xMin + "," + this.yMin + "," + this.xMax * 1.05 + "," + this.yMax * 1.05;
+                    },
+                    transform() {
+                        let svg = document.querySelector("#rongqi");
+                        if (svg !== null) {
+                            let height = svg.clientHeight - 40;
+                            let width = svg.clientWidth - 20;
+
+                            let str = "translate(0,";
+                            str = str + (Math.min(height, this.yMax * 1.05));
+                            str = str + ") scale(";
+
+                            if (this.xMax > width) {
+                                str = str + width / this.xMax * 0.95;
+                            } else {
+                                str = str + "1";
+                            }
+                            str = str + ",";
+
+                            if (this.yMax > height) {
+                                str = str + (-1 * (height / this.yMax) * 0.95);
+                            } else {
+                                str = str + "-1";
+                            }
+                            str = str + ")";
+                            return str;
+                        }
+                        return "translate(0," + this.yMax * 1.05 + ") scale(1,-1)";
+                    },
+                    map() {
+                        let ditu = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
+                        let Q_list = [this.QH, this.QR, this.QS];
+                        let Q_max = Math.max(...Q_list);
+                        let Q_min = Math.min(...Q_list);
+                        let Q_m = this.QH + this.QR + this.QS - Q_max - Q_min;
+                        let Q_sort = [Q_min, Q_m, Q_max];
+
+                        let P_list = [this.PH, this.PR, this.PS];
+                        let P_max = Math.max(...P_list);
+                        let P_min = Math.min(...P_list);
+                        let P_m = this.PH + this.PR + this.PS - P_max - P_min;
+                        let P_sort = [P_min, P_m, P_max];
+
+                        for (let col = 0; col <= 2; col++) {
+                            // QH*PH +
+                            if (Q_sort[col] <= this.QH) {
+                                for (let row = 2; row >= 0; row--) {
+                                    if (P_sort[Math.abs(row - 2)] <= this.PH) {
+                                        ditu[row][col]++;
+                                    }
+                                }
+                            }
+                            // QR*PR +
+                            if (Q_sort[col] <= this.QR) {
+                                for (let row = 2; row >= 0; row--) {
+                                    if (P_sort[Math.abs(row - 2)] <= this.PR) {
+                                        ditu[row][col]++;
+                                    }
+                                }
+                            }
+                            // QS*PS +
+                            if (Q_sort[col] <= this.QS) {
+                                for (let row = 2; row >= 0; row--) {
+                                    if (P_sort[Math.abs(row - 2)] <= this.PS) {
+                                        ditu[row][col]++;
+                                    }
+                                }
+                            }
+                            // QH*PR -
+                            if (Q_sort[col] <= this.QH) {
+                                for (let row = 2; row >= 0; row--) {
+                                    if (P_sort[Math.abs(row - 2)] <= this.PR) {
+                                        ditu[row][col]--;
+                                    }
+                                }
+                            }
+                            // QR*PS -
+                            if (Q_sort[col] <= this.QR) {
+                                for (let row = 2; row >= 0; row--) {
+                                    if (P_sort[Math.abs(row - 2)] <= this.PS) {
+                                        ditu[row][col]--;
+                                    }
+                                }
+                            }
+                        }
+                        return ditu;
+                    }
+                },
+                methods: {
+                    log(...args) {
+                        if (this.debug) {
+                            console.log(...args);
+                        }
+                    },
+                    Round(num, width) {
+                        if (width < 0) { return num };
+                        let value = 1;
+                        for (let i = 0; i < width; i++) {
+                            value = value * 10
+                        }
+                        return Math.round(num * value) / value;
+                    }
+                },
+                mounted() {
+                    console.log("欢迎使用现货量价分析模型。    (天津国能能源销售有限公司)")
+                    this.QS = 401;
+                    this.QS = 400;
+                    this.PR = 441;
+                    this.PR = 440;
+                }
+            };
+            window.app = Vue.createApp(obj).mount("page");
+        };
+    </script>
+</body>
+
+</html>
