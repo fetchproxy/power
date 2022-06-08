@@ -197,6 +197,7 @@
         <div style="padding: 10px;">
             <p class="shuoming">支出 = Q合约×P合约 + Q日前×P日前 + Q实时×P实时 - Q合约×P日前 - Q日前×P实时</p>
             <p class="shuoming">支出 = Q合约×(P合约 - P日前) + Q日前×(P日前 - P实时) + Q实时×P实时</p>
+            <p class="shuoming">收入 = Q实时×(P合约+{{JC}}) , 收益 = 收入 - 支出</p>
         </div>
         <div id="rongqi">
             <svg :viewBox="viewBox" preserveAspectRatio="xMinYMin meet">
