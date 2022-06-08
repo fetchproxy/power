@@ -21,7 +21,7 @@
             width: 660px;
             height: 100%;
             display: grid;
-            grid-template-rows: 65px 150px 50px 1fr;
+            grid-template-rows: 65px 150px 90px 1fr;
         }
 
         table {
@@ -90,7 +90,7 @@
         <div style="display:grid;grid-template-columns:70% 1fr;">
             <p class="title">现 货 交 易 量 价 分 析</p>
             <p class="title" style="font-weight:normal;"><label for="print"><input id="print" type="checkbox"
-                        v-model="debug" />控制台输出选项</label></p>
+                        v-model="debug" />控制台输出</label></p>
         </div>
         <div class="data">
             <table>
@@ -196,6 +196,7 @@
         </div>
         <div style="padding: 10px;">
             <p class="shuoming">支出 = Q合约×P合约 + Q日前×P日前 + Q实时×P实时 - Q合约×P日前 - Q日前×P实时</p>
+            <p class="shuoming">支出 = Q合约×(P合约 - P日前) + Q日前×(P日前 - P实时) + Q实时×P实时</p>
         </div>
         <div id="rongqi">
             <svg :viewBox="viewBox" preserveAspectRatio="xMinYMin meet">
