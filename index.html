@@ -132,7 +132,8 @@
                     <p style="font-weight: bold;">套 利</p>
                 </div>
             </div>
-            <div class="grid" style="grid-template-rows:1fr 1fr 1fr;grid-template-columns: 30% 1fr;padding: 5px;">
+            <div class="grid"
+                style="grid-template-rows:1fr 1fr 1fr;grid-template-columns: 30% 1fr;padding: 5px;align-items: center;">
                 <p v-if="taoLi1>=0" class="number" style="text-align:right;padding-right: 5px;color: blue;">{{taoLi1}}
                 </p>
                 <p v-else class="number" style="text-align:right;padding-right: 5px;color: red;">{{taoLi1}}</p>
@@ -178,11 +179,11 @@
                     <text x="3" :y="yMax-yMin">0</text>
                     <!-- X轴标签 -->
                     <text :x="QH-10" :y="yMax-yMin" stroke="blue">Q合</text>
-                    <text :x="QR-10" :y="yMax-yMin" stroke="rgb(255,128,0)">Q日</text>
+                    <text :x="QR-10" :y="yMax-yMin" stroke="orange">Q日</text>
                     <text :x="QS-10" :y="yMax-yMin" stroke="red">Q实</text>
                     <!-- Y轴标签 -->
                     <text x="3" :y="yMax-PH+40" stroke="blue">P合</text>
-                    <text x="3" :y="yMax-PR+40" stroke="rgb(255,128,0)">P日</text>
+                    <text x="3" :y="yMax-PR+40" stroke="orange">P日</text>
                     <text x="3" :y="yMax-PS+40" stroke="red">P实</text>
                 </g>
             </svg>
