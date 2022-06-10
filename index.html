@@ -358,6 +358,10 @@
             };
             window.app = Vue.createApp(obj).mount("page");
         };
+        window.onresize = function () {
+            app.PH++;
+            app.PH--;
+        };
     </script>
 </body>
 
