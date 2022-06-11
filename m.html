@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="./app.css" rel="stylesheet">
+    <script src="./vue.js"></script>
+    <title>现货交易量价分析模型</title>
+</head>
+
+<body>
+    <page class="grid">
+        <div desc="标题" class="title">
+            <p style="font-size:23px">现 货 交 易 量 价 分 析</p>
+        </div>
+
+        <div desc="数据" class="grid" style="grid-template-columns:1fr 1fr;padding: 5px;">
+            <table>
+                <tr style="font-weight:bold;text-align:center;">
+                    <td class="table-title">类 别</td>
+                    <td class="table-title">电 量 ( Q )</td>
+                    <td class="table-title">电 价 ( P )</td>
+                </tr>
+                <tr>
+                    <td style="color:blue;font-weight: bold;font-size: 18px;text-align: center;">合 约
+                    </td>
+                    <td style="text-align:center;">
+                        <input v-model="QH" type="number" max="10000" min="0" step="10" class="number"
+                            style="color:blue" />
+                    </td>
+                    <td style="text-align:center;">
+                        <input v-model="PH" type="number" max="2000" min="0" step="1" class="number"
+                            style="color:blue" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="table-title" style="color:orange;font-weight: bold;font-size: 18px;text-align: center;">日
+                        前</td>
+                    <td style="text-align:center;">
+                        <input v-model="QR" type="number" max="10000" min="0" step="10" class="number"
+                            style="color:orange" />
+                    </td>
+                    <td style="text-align:center;">
+                        <input v-model="PR" type="number" max="2000" min="0" step="1" class="number"
+                            style="color:orange" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="table-title" style="color:red;font-weight: bold;font-size: 18px;text-align: center;">实 时
+                    </td>
+                    <td style="text-align:center;">
+                        <input v-model="QS" type="number" max="10000" min="0" step="10" class="number"
+                            style="color:red" />
+                    </td>
+                    <td style="text-align:center;">
+                        <input v-model="PS" type="number" max="2000" min="0" step="1" class="number"
+                            style="color:red" />
+                    </td>
+                </tr>
+            </table>
+
+            <div style="padding:5px;display: flex;align-items: center;justify-content: center;">
+                <table style="border-collapse: collapse;font-size: 20px;">
+                    <tr>
+                        <td colspan="3" align="center">成 本 支 出 图 示</td>
+                    </tr>
+                    <tr>
+                        <td v-if="map[0][0]>=1" class="mianji mianji-x">0</td>
+                        <td v-else-if="map[0][0]==0" class="mianji mianji0">0</td>
+                        <td v-else class="mianji mianji-1">0</td>
+
+                        <td v-if="map[0][1]>=1" class="mianji mianji-x">0</td>
+                        <td v-else-if="map[0][1]==0" class="mianji mianji0">0</td>
+                        <td v-else class="mianji mianji-1">0</td>
+
+                        <td v-if="map[0][2]>=1" class="mianji mianji-x">0</td>
+                        <td v-else-if="map[0][2]==0" class="mianji mianji0">0</td>
+                        <td v-else class="mianji mianji-1">0</td>
+                    </tr>
+                    <tr>
+                        <td v-if="map[1][0]>=1" class="mianji mianji-x">0</td>
+                        <td v-else-if="map[1][0]==0" class="mianji mianji0">0</td>
+                        <td v-else class="mianji mianji-1">0</td>
+
+                        <td v-if="map[1][1]>=1" class="mianji mianji-x">0</td>
+                        <td v-else-if="map[1][1]==0" class="mianji  mianji0">0</td>
+                        <td v-else class="mianji mianji-1">0</td>
+
+                        <td v-if="map[1][2]>=1" class="mianji mianji-x">0</td>
+                        <td v-else-if="map[1][2]==0" class="mianji mianji0">0</td>
+                        <td v-else class="mianji mianji-1">0</td>
+                    </tr>
+                    <tr>
+                        <td v-if="map[2][0]>=1" class="mianji  mianji-x">0</td>
+                        <td v-else-if="map[2][0]==0" class="mianji mianji0">0</td>
+                        <td v-else class="mianji mianji-1">0</td>
+
+                        <td v-if="map[2][1]>=1" class="mianji mianji-x">0</td>
+                        <td v-else-if="map[2][1]==0" class="mianji mianji0">0</td>
+                        <td v-else class="mianji mianji-1">0</td>
+
+                        <td v-if="map[2][2]>=1" class="mianji mianji-x">0</td>
+                        <td v-else-if="map[2][2]==0" class="mianji mianji0">0</td>
+                        <td v-else class="mianji mianji-1">0</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div desc="信息" class="grid" style="grid-template-columns:1fr 1fr;">
+            <div class="grid" style="grid-template-rows:1fr 1fr;text-align: center;">
+                <div v-if="sunYi>=0" class="moddle" style="align-items:flex-end;color: blue;">
+                    <p class="number" style="font-size:25px;font-weight:bold;">{{sunYi}}</p>
+                </div>
+                <div v-else class="moddle" style="align-items:flex-end;color: red;">
+                    <p class="number" style="font-size:25px;font-weight:bold;">{{sunYi}}</p>
+                </div>
+                <div class="moddle" style="align-items:flex-start">
+                    <p style="font-weight: bold;">收 益</p>
+                </div>
+            </div>
+            <div class="grid" style="grid-template-rows:1fr 1fr;text-align: center;">
+                <div v-if="taoLi>=0" class="moddle" style="align-items:flex-end;color: blue;">
+                    <p class="number" style="font-size:25px;font-weight:bold;">{{taoLi}}</p>
+                </div>
+                <div v-else class="moddle" style="align-items:flex-end;color: red;">
+                    <p class="number" style="font-size:25px;font-weight:bold;">{{taoLi}}</p>
+                </div>
+                <div class="moddle" style="align-items:flex-start">
+                    <p style="font-weight: bold;">套 利</p>
+                </div>
+            </div>
+        </div>
+
+        <div desc="公式">
+            <p style="padding-left: 10px;width: 100%;">支出=Q合×P合+Q日×P日+Q实×P实-Q合×P日-Q日×P实</p>
+        </div>
+
+        <div desc="绘图" id="rongqi">
+            <svg :viewBox="viewBox" preserveAspectRatio="xMinYMin meet">
+                <g :transform="transform">
+                    <!-- 坐标系 -->
+                    <line x1="0" y1="0" :x2="xMax*1.05" y2="0" style="stroke:black;stroke-width:2" />
+                    <line x1="0" y1="0" x2="0" :y2="yMax*1.1" style="stroke:black;stroke-width:4" />
+
+                    <!-- 合约 -->
+                    <line x1="0" :y1="PH" :x2="xMax" :y2="PH" style="stroke:blue;stroke-width:3" />
+                    <line :x1="QH" y1="0" :x2="QH" :y2="yMax" style="stroke:blue;stroke-width:3" />
+
+                    <!-- 日前 -->
+                    <line x1="0" :y1="PR" :x2="xMax" :y2="PR" style="stroke:orange;stroke-width:3" />
+                    <line :x1="QR" y1="0" :x2="QR" :y2="yMax" style="stroke:orange;stroke-width:3" />
+
+                    <!-- 实时 -->
+                    <line x1="0" :y1="PS" :x2="xMax" :y2="PS" style="stroke:red;stroke-width:3" />
+                    <line x1="0" :y1="PH+JC" :x2="QH" :y2="PH+JC" stroke-dasharray="15, 2"
+                        style="stroke:green;stroke-width:2" />
+                    <line :x1="QS" y1="0" :x2="QS" :y2="yMax" style="stroke:red;stroke-width:3" />
+
+                </g>
+                <g visibility="hidden" other="visible">
+                    <text x="3" :y="yMax-yMin">0</text>
+                    <!-- X轴标签 -->
+                    <text :x="QH-10" :y="yMax-yMin" stroke="blue">Q合</text>
+                    <text :x="QR-10" :y="yMax-yMin" stroke="orange">Q日</text>
+                    <text :x="QS-10" :y="yMax-yMin" stroke="red">Q实</text>
+                    <!-- Y轴标签 -->
+                    <text x="3" :y="yMax-PH+40" stroke="blue">P合</text>
+                    <text x="3" :y="yMax-PR+40" stroke="orange">P日</text>
+                    <text x="3" :y="yMax-PS+40" stroke="red">P实</text>
+                </g>
+            </svg>
+        </div>
+
+        <div desc="底部" class="title" style="font-size: 16px;justify-content: flex-end;padding-right: 15px;">
+            <p>制 作 : 天 津 国 能 能 源 销 售 有 限 公 司</p>
+        </div>
+    </page>
+
+    <script>
+        window.onload = function () {
+            const obj = {
+                data() {
+                    return {
+                        QH: 400,
+                        PH: 420,
+                        QR: 400,
+                        PR: 440,
+                        QS: 400,
+                        PS: 440,
+                        xMin: -50,
+                        yMin: -50,
+                        JC: 5,
+                        debug: false
+                    }
+                },
+                computed: {
+                    shouRu() {
+                        return this.Round(this.QS * (this.PH + this.JC), 2).toFixed(2);
+                    },
+                    zhiChu() {
+                        return this.Round(this.QH * this.PH + (this.QR - this.QH) * this.PR + (this.QS - this.QR) * this.PS, 2).toFixed(2);
+                    },
+                    sunYi() {
+                        return this.Round(this.shouRu - this.zhiChu, 2).toFixed(2);
+                    },
+                    taoLi() {
+                        let SR = (this.QS - this.QR) * (this.PR - this.PS);
+                        let RH = (this.QS - this.QH) * (this.PH - this.PR);
+                        let jc = this.JC * (this.QS - this.QH);
+                        return this.Round(SR + RH + jc, 2).toFixed(2);
+                    },
+                    taoLi1() {
+                        let SR = (this.QS - this.QR) * (this.PR - this.PS);
+                        return this.Round(SR, 2).toFixed(2);
+                    },
+                    taoLi2() {
+                        let RH = (this.QS - this.QH) * (this.PH - this.PR);
+                        return this.Round(RH, 2).toFixed(2);
+                    },
+                    taoLi3() {
+                        let jc = this.JC * (this.QS - this.QH);
+                        return this.Round(jc, 2).toFixed(2);
+                    },
+                    xMax() {
+                        return Math.max(this.QH, this.QR, this.QS);
+                    },
+                    yMax() {
+                        return Math.max(this.PH, this.PR, this.PS);
+                    },
+                    viewBox() {
+                        return this.xMin + "," + this.yMin + "," + this.xMax * 1.05 + "," + this.yMax * 1.05;
+                    },
+                    transform() {
+                        let svg = document.querySelector("#rongqi");
+                        if (svg !== null) {
+                            let height = svg.clientHeight - 40;
+                            let width = svg.clientWidth - 20;
+
+                            let str = "translate(0,";
+                            str = str + (Math.min(height, this.yMax * 1.05));
+                            str = str + ") scale(";
+
+                            if (this.xMax > width) {
+                                str = str + width / this.xMax * 0.95;
+                            } else {
+                                str = str + "1";
+                            }
+                            str = str + ",";
+
+                            if (this.yMax > height) {
+                                str = str + (-1 * (height / this.yMax) * 0.95);
+                            } else {
+                                str = str + "-1";
+                            }
+                            str = str + ")";
+                            return str;
+                        }
+                        return "translate(0," + this.yMax * 1.05 + ") scale(1,-1)";
+                    },
+                    map() {
+                        let ditu = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
+                        let Q_list = [this.QH, this.QR, this.QS];
+                        let Q_max = Math.max(...Q_list);
+                        let Q_min = Math.min(...Q_list);
+                        let Q_m = this.QH + this.QR + this.QS - Q_max - Q_min;
+                        let Q_sort = [Q_min, Q_m, Q_max];
+
+                        let P_list = [this.PH, this.PR, this.PS];
+                        let P_max = Math.max(...P_list);
+                        let P_min = Math.min(...P_list);
+                        let P_m = this.PH + this.PR + this.PS - P_max - P_min;
+                        let P_sort = [P_min, P_m, P_max];
+
+                        for (let col = 0; col <= 2; col++) {
+                            // QH*PH +
+                            if (Q_sort[col] <= this.QH) {
+                                for (let row = 2; row >= 0; row--) {
+                                    if (P_sort[Math.abs(row - 2)] <= this.PH) {
+                                        ditu[row][col]++;
+                                    }
+                                }
+                            }
+                            // QR*PR +
+                            if (Q_sort[col] <= this.QR) {
+                                for (let row = 2; row >= 0; row--) {
+                                    if (P_sort[Math.abs(row - 2)] <= this.PR) {
+                                        ditu[row][col]++;
+                                    }
+                                }
+                            }
+                            // QS*PS +
+                            if (Q_sort[col] <= this.QS) {
+                                for (let row = 2; row >= 0; row--) {
+                                    if (P_sort[Math.abs(row - 2)] <= this.PS) {
+                                        ditu[row][col]++;
+                                    }
+                                }
+                            }
+                            // QH*PR -
+                            if (Q_sort[col] <= this.QH) {
+                                for (let row = 2; row >= 0; row--) {
+                                    if (P_sort[Math.abs(row - 2)] <= this.PR) {
+                                        ditu[row][col]--;
+                                    }
+                                }
+                            }
+                            // QR*PS -
+                            if (Q_sort[col] <= this.QR) {
+                                for (let row = 2; row >= 0; row--) {
+                                    if (P_sort[Math.abs(row - 2)] <= this.PS) {
+                                        ditu[row][col]--;
+                                    }
+                                }
+                            }
+                        }
+                        return ditu;
+                    }
+                },
+                methods: {
+                    log(...args) {
+                        if (this.debug) {
+                            console.log(...args);
+                        }
+                    },
+                    Round(num, width) {
+                        if (width < 0) { return num };
+                        let value = 1;
+                        for (let i = 0; i < width; i++) {
+                            value = value * 10
+                        }
+                        return Math.round(num * value) / value;
+                    }
+                },
+                mounted() {
+                    console.log("欢迎使用现货量价分析模型")
+                    this.PS++;
+                    this.PS--;
+                }
+            };
+            window.app = Vue.createApp(obj).mount("page");
+        };
+        window.onresize = function () {
+            app.PH++;
+            app.PH--;
+        };
+    </script>
+</body>
+
+</html>
