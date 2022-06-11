@@ -117,7 +117,7 @@
                 <div v-else class="moddle" style="align-items:flex-end;color: red;">
                     <p class="number" style="font-size:25px;font-weight:bold;">{{sunYi}}</p>
                 </div>
-                <div class="moddle" style="align-items:flex-start">
+                <div class="moddle" style="align-items:flex-start;padding-top: 5px;">
                     <p style="font-weight: bold;">收 益</p>
                 </div>
             </div>
@@ -128,7 +128,7 @@
                 <div v-else class="moddle" style="align-items:flex-end;color: red;">
                     <p class="number" style="font-size:25px;font-weight:bold;">{{taoLi}}</p>
                 </div>
-                <div class="moddle" style="align-items:flex-start">
+                <div class="moddle" style="align-items:flex-start;padding-top: 5px;">
                     <p style="font-weight: bold;">套 利</p>
                 </div>
             </div>
@@ -351,10 +351,8 @@
                 },
                 mounted() {
                     console.log("欢迎使用现货量价分析模型")
-                    this.QS = 401;
-                    this.QS = 400;
-                    this.PR = 441;
-                    this.PR = 440;
+                    this.PS++;
+                    this.PS--;
                 }
             };
             window.app = Vue.createApp(obj).mount("page");
