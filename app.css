@@ -16,7 +16,7 @@ body {
     justify-content: center;
     overflow: hidden;
     position: relative;
-    background-color: dimgray;
+    background-color: rgba(60, 60, 60, 0.8);
 }
 
 .grid {
@@ -52,7 +52,7 @@ svg {
     padding: 10px;
 }
 
-.moddle {
+.middle {
     display: flex;
     align-items: center;
     justify-content: center;
